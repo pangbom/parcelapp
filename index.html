@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ParcelApp</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>ParcelApp</h1>
+    <p class="sub">Track your parcels. Nothing leaves your browser.</p>
+  </header>
+
+  <main>
+    <form id="add-form" autocomplete="off">
+      <input id="tracking" type="text" placeholder="Tracking number" required>
+      <input id="name" type="text" placeholder="Name (optional, auto if empty)">
+      <button type="submit">Add</button>
+    </form>
+    <p id="carrier-hint" class="hint"></p>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search">
+      <label class="check"><input id="show-archived" type="checkbox"> Show archived</label>
+    </div>
+
+    <ul id="list"></ul>
+    <p id="empty" class="empty hidden">No parcels yet. Paste a tracking number above.</p>
+  </main>
+
+  <footer>
+    <button id="export" type="button">Export</button>
+    <label class="button-like">Import<input id="import" type="file" accept="application/json" hidden></label>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
