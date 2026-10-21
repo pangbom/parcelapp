@@ -19,7 +19,9 @@ Open `index.html` in a browser. No build step, no dependencies.
 
 GitHub Pages: repo Settings, Pages, deploy from the `main` branch, root folder.
 
-## Limits
+## Live status (optional)
 
-- No live status updates. Carrier pages show live tracking. Adding a tracking API (for example 17TRACK or AfterShip) would be a small change in `app.js`.
+Click "Live API key" and paste a 17TRACK API key. A "Refresh" button then appears on each parcel and shows the latest event. The key is stored only in this browser's localStorage. The browser calls 17TRACK directly, so the request may be blocked by CORS. If it is, the carrier links still work.
+
+## Limits
 - Data lives in one browser. Use Export to back it up.

@@ -100,6 +100,21 @@
       }
       sel.addEventListener("change", () => update(p.id, { status: sel.value }));
 
+      if (getKey()) {
+        const refreshBtn = document.createElement("button");
+        refreshBtn.type = "button";
+        refreshBtn.textContent = "Refresh";
+        refreshBtn.addEventListener("click", () => refresh(p.id, refreshBtn));
+        actions.append(refreshBtn);
+      }
+
+      if (p.live) {
+        const live = document.createElement("div");
+        live.className = "meta";
+        live.textContent = `Live: ${p.live.text} (${formatDate(p.live.at)})`;
+        li.append(live);
+      }
+
       const arch = document.createElement("button");
       arch.type = "button";
       arch.textContent = p.archived ? "Unarchive" : "Archive";
@@ -124,6 +139,43 @@
   function update(id, patch) {
     parcels = parcels.map(p => p.id === id ? { ...p, ...patch } : p);
     save();
+    render();
+  }
+
+  // Optional live status via 17TRACK API v2.2. Key is stored only in this browser.
+  const KEY_STORE = "parcelapp.17track";
+  function getKey() { return localStorage.getItem(KEY_STORE) || ""; }
+
+  async function refresh(id, btn) {
+    const p = parcels.find(x => x.id === id);
+    if (!p) return;
+    btn.disabled = true;
+    btn.textContent = "…";
+    const headers = { "Content-Type": "application/json", "17token": getKey() };
+    const body = JSON.stringify([{ number: p.number }]);
+    try {
+      // Register once (safe to repeat), then fetch info.
+      await fetch("https://api.17track.net/track/v2.2/register", { method: "POST", headers, body });
+      const res = await fetch("https://api.17track.net/track/v2.2/gettrackinfo", { method: "POST", headers, body });
+      const json = await res.json();
+      const info = json?.data?.accepted?.[0]?.track_info;
+      const latest = info?.latest_event;
+      const text = latest?.description
+        ? `${latest.description}${latest.location ? ", " + latest.location : ""}`
+        : (json?.data?.rejected?.[0]?.error?.message || "No status yet");
+      update(id, { live: { text, at: Date.now() } });
+    } catch {
+      alert("Could not reach the tracking service. Check the API key, or the browser may block the request.");
+      btn.disabled = false;
+      btn.textContent = "Refresh";
+    }
+  }
+
+  function setKey() {
+    const next = prompt("17TRACK API key (leave empty to remove)", getKey());
+    if (next === null) return;
+    if (next.trim()) localStorage.setItem(KEY_STORE, next.trim());
+    else localStorage.removeItem(KEY_STORE);
     render();
   }
 
@@ -175,6 +227,8 @@
     render();
     el.tracking.focus();
   });
+
+  $("#key").addEventListener("click", setKey);
 
   el.search.addEventListener("input", render);
   el.showArchived.addEventListener("change", render);
